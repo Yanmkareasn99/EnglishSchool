@@ -23,7 +23,7 @@ public class TeacherMenu {
         }
     }
 
-    private static void viewLessons() {
+    public static void viewLessons() {
         System.out.println(Main.LINE);
         System.out.print("講師ID: ");
         int teacherId = Integer.parseInt(Main.sc.nextLine());
@@ -45,7 +45,7 @@ public class TeacherMenu {
         }
     }
 
-    private static void recordAttendance() {
+    public static void recordAttendance() {
         System.out.println(Main.LINE);
         System.out.print("レッスンID: ");
         int lessonId = Integer.parseInt(Main.sc.nextLine());
@@ -66,7 +66,7 @@ public class TeacherMenu {
         System.out.println("レッスンが見つかりません。");
     }
 
-    private static Student findStudent(int studentId) {
+    public static Student findStudent(int studentId) {
         return StaffMenu.findStudent(studentId);
     }
 }

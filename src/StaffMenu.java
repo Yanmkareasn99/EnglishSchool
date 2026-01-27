@@ -15,10 +15,11 @@ public class StaffMenu {
                         3: 生徒情報変更
                         4: ポイント購入
                         5: レッスン予約
-                        6: レッスンキャンセル
-                        7: 講師登録
-                        8: 講師一覧
-                        9: 生徒退会
+                        6: レッスン確認
+                        7: レッスンキャンセル
+                        8: 講師登録
+                        9: 講師一覧
+                        10: 生徒退会
                         0: 戻る
                        
                        番号を入力してください>>> """);
@@ -32,10 +33,11 @@ public class StaffMenu {
                     case 3 -> changeStudent();
                     case 4 -> addPoints();
                     case 5 -> reserveLesson();
-                    case 6 -> cancelLesson();
-                    case 7 -> addTeacher();
-                    case 8 -> viewTeachers();
-                    case 9 -> removeStudent();
+                    case 6 -> viewLessons();
+                    case 7 -> cancelLesson();
+                    case 8 -> addTeacher();
+                    case 9 -> viewTeachers();
+                    case 10 -> removeStudent();
                     case 0 -> { return; }
                     default -> System.out.println("無効な入力です。");
                 }
@@ -212,6 +214,20 @@ public class StaffMenu {
         Main.lessons.add(l);
 
         System.out.println("レッスンを予約しました。");
+    }
+
+    public static void viewLessons() {
+        System.out.println(Main.LINE);
+        for (Lesson l : Main.lessons) {
+            if (!"取消".equals(l.getStatus())) {
+                System.out.println(
+                        "レッスンID=" + l.getLessonId() +
+                                " 生徒ID=" + l.getStudentId() +
+                                " コース=" + l.getCourse() +
+                                " 日時=" + l.getDateTime()
+                );
+            }
+        }
     }
 
     public static void cancelLesson() {
