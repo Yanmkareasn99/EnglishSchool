@@ -47,6 +47,34 @@ public class CsvUtil {
         }
     }
 
+    public static void saveLessonCost(int pointValue, int lessonCost) {
+        try (FileWriter fw = new FileWriter("lesson_cost.csv")) {
+            fw.write("pointValue,lessonCost\n");
+            fw.write(pointValue + "," + lessonCost + "\n");
+        } catch (Exception e) {
+            System.out.println("単価CSV保存エラー");
+        }
+    }
+
+    public static int[] loadLessonCost() {
+        try (FileReader fr = new FileReader("lesson_cost.csv");
+             BufferedReader br = new BufferedReader(fr)) {
+
+            String line = br.readLine();
+            line = br.readLine();
+            if (line == null || line.isEmpty()) {
+                return null;
+            }
+            String[] d = line.split(",");
+            if (d.length < 2) {
+                return null;
+            }
+            return new int[]{Integer.parseInt(d[0]), Integer.parseInt(d[1])};
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 //    public static void saveProfits(List<Profit> profits) {
 //        try (FileWriter fw = new FileWriter("profits.csv")) {
 //
@@ -84,7 +112,7 @@ public class CsvUtil {
                         d[1],                           // name
                         Integer.parseInt(d[2]),         // age
                         d[3],                           // sex
-                        Integer.parseInt(d[4]),         // phone
+                        Long.parseLong(d[4]),         // phone
                         d[5],                           // email
                         d[7],                           // course
                         Integer.parseInt(d[6]),         // point

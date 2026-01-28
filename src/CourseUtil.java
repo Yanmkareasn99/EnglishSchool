@@ -25,7 +25,7 @@ public class CourseUtil {
                     3. ビジネス
                     4. キッズ
                     """);
-            System.out.print("番号: ");
+            System.out.print("番号を入力してください>>> ");
             try {
                 int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
                 switch (choice) {
@@ -49,7 +49,7 @@ public class CourseUtil {
                     1. 初級
                     2. 上級
                     """);
-            System.out.print("番号: ");
+            System.out.print("番号を入力してください>>> ");
             try {
                 int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
                 switch (choice) {
@@ -71,7 +71,7 @@ public class CourseUtil {
                     1. あり
                     2. なし
                     """);
-            System.out.print("番号: ");
+            System.out.print("番号を入力してください>>> ");
             try {
                 int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
                 switch (choice) {

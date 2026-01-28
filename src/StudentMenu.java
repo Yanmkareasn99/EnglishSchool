@@ -1,27 +1,34 @@
 public class StudentMenu {
     public static void showMenu() {
         while (true) {
-            try {
-                Design.clearScreen();
-                System.out.println(Design.LINE);
-                System.out.print("""
+            Design.clearScreen();
+            System.out.println(Design.LINE);
+            System.out.print("""
                         
                         1: 生徒情報確認
                         2: レッスン予約
                         3: レッスン確認
                         0: 戻る
                         
-                        番号を入力してください>>> """);
-                int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
-                switch (choice) {
-                    case 1 -> viewStudent();
-                    case 2 -> StaffMenu.reserveLesson();
-                    case 3 -> viewLessons();
-                    case 0 -> { return; }
-                    default -> System.out.println("無効な入力です。");
+                        """);
+            while (true) {
+                System.out.print("番号を入力してください>>> ");
+                try {
+                    int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
+                    switch (choice) {
+                        case 1 -> viewStudent();
+                        case 2 -> StaffMenu.reserveLesson();
+                        case 3 -> viewLessons();
+                        case 0 -> { return; }
+                        default -> {
+                            System.out.println("無効な入力です。");
+                            continue;
+                        }
+                    }
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.println("数字を入力してください。");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("数字を入力してください。");
             }
         }
     }
@@ -66,9 +73,5 @@ public class StudentMenu {
         if (!found) {
             System.out.println("レッスンがありません。");
         }
-    }
-
-    public static Student findStudent(int studentId) {
-        return StaffMenu.findStudent(studentId);
     }
 }

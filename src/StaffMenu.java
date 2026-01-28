@@ -1,4 +1,5 @@
 //Staff have all the authorities except recordAttandance();
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
@@ -6,10 +7,9 @@ public class StaffMenu {
 
     public static void showMenu() {
         while (true) {
-            try {
-                Design.clearScreen();
-                System.out.println(Design.LINE);
-                System.out.print("""
+            Design.clearScreen();
+            System.out.println(Design.LINE);
+            System.out.print("""
                        
                         1: 生徒登録
                         2: 生徒一覧
@@ -24,31 +24,34 @@ public class StaffMenu {
                         11: 生徒退会
                         12: 売上確認
                         0: 戻る
-                       
-                       番号を入力してください>>> """);
-
-
-                int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
-
-                switch (choice) {
-                    case 1 -> addStudent();
-                    case 2 -> viewStudents();
-                    case 3 -> changeStudent();
-                    case 4 -> addPoints();
-                    case 5 -> reserveLesson();
-                    case 6 -> viewLessons();
-                    case 7 -> cancelLesson();
-                    case 8 -> changeLessonCost();
-                    case 9 -> addTeacher();
-                    case 10 -> viewTeachers();
-                    case 11 -> removeStudent();
-                    case 12 -> viewProfit();
-                    case 0 -> { return; }
-                    default -> System.out.println("無効な入力です。");
+                       """);
+            while (true) {
+                System.out.print("番号を入力してください>>> ");
+                try {
+                    int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
+                    switch (choice) {
+                        case 1 -> addStudent();
+                        case 2 -> viewStudents();
+                        case 3 -> changeStudent();
+                        case 4 -> addPoints();
+                        case 5 -> reserveLesson();
+                        case 6 -> viewLessons();
+                        case 7 -> cancelLesson();
+                        case 8 -> changeLessonCost();
+                        case 9 -> addTeacher();
+                        case 10 -> viewTeachers();
+                        case 11 -> removeStudent();
+                        case 12 -> viewProfit();
+                        case 0 -> { return; }
+                        default -> {
+                            System.out.println("無効な入力です。");
+                            continue;
+                        }
+                    }
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.println("数字を入力してください。");
                 }
-
-            } catch (Exception e) {
-                System.out.println("数字を入力してください。");
             }
         }
     }
@@ -67,7 +70,7 @@ public class StaffMenu {
         String sex = EnglishSchool.sc.nextLine();
 
         System.out.print("電話番号: ");
-        int phone = Integer.parseInt(EnglishSchool.sc.nextLine());
+        long phone = Long.parseLong(EnglishSchool.sc.nextLine());
 
         System.out.print("Email: ");
         String email = EnglishSchool.sc.nextLine();
@@ -79,7 +82,7 @@ public class StaffMenu {
                 phone, email, course,
                 0, "在籍", "", ""
         );
-        s.setRegisterDate(java.time.LocalDate.now());
+        s.setRegisterDate(LocalDate.now());
 
         EnglishSchool.students.add(s);
         System.out.println("生徒を登録しました。");
@@ -196,11 +199,6 @@ public class StaffMenu {
 
         String lessonType = CourseUtil.SelectLessonType();
 
-        if (!student.consumePoints(50)) {
-            System.out.println("ポイントが不足しています（必要: 50）。");
-            return;
-        }
-
         System.out.print("日時 (例: 2026-02-01 18:00): ");
         String input = EnglishSchool.sc.nextLine();
         LocalDateTime dateTime;
@@ -212,6 +210,11 @@ public class StaffMenu {
         }
         if (dateTime.isBefore(LocalDateTime.now())) {
             System.out.println("過去の日時は予約できません。");
+            return;
+        }
+
+        if (!student.consumePoints(LessonCost.getLessonCost())) {
+            System.out.println("ポイントが不足しています。");
             return;
         }
 
@@ -290,13 +293,16 @@ public class StaffMenu {
         while(true){
             try{
                 System.out.println("""
-                単価を変える
-           1. はい
-           2. いいえ
+            単価を変える
+       1. はい
+       2. いいえ
            
     番号を入力してください>>> """);
                 switch (Integer.parseInt(EnglishSchool.sc.nextLine())){
-                    case 1 -> LessonCost.changeCost();
+                    case 1 -> {
+                        LessonCost.changeCost();
+                        return;
+                    }
                     case 2 -> {
                         return;
                     }
@@ -310,12 +316,18 @@ public class StaffMenu {
 
     }
     public static void viewProfit() {
-        System.out.println(Design.LINE);
-        int totalPointsUsed = EnglishSchool.lessons.size() * LessonCost.getLessonCost();
-        int totalProfitYen = totalPointsUsed * LessonCost.getPointValue();
 
         System.out.println(Design.LINE);
+        int lessonCount = 0;
+        for (Lesson l : EnglishSchool.lessons) {
+            if (!"取消".equals(l.getStatus())) {
+                lessonCount++;
+            }
+        }
+        int totalPointsUsed = lessonCount * LessonCost.getLessonCost();
+        int totalProfit = totalPointsUsed * LessonCost.getPointValue();
+        System.out.println(Design.LINE);
         System.out.println("ポイント合計=" + totalPointsUsed);
-        System.out.println("売上=" + totalProfitYen + "円");
+        System.out.println("売上=" + totalProfit + "円");
     }
 }

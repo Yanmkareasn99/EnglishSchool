@@ -1,25 +1,32 @@
 public class TeacherMenu {
     public static void showMenu() {
         while (true) {
-            try {
-                Design.clearScreen();
-                System.out.println(Design.LINE);
-                System.out.print("""
+            Design.clearScreen();
+            System.out.println(Design.LINE);
+            System.out.print("""
                         
                         1: レッスン一覧
                         2: 出席登録
                         0: 戻る
                         
-                        番号を入力してください>>> """);
-                int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
-                switch (choice) {
-                    case 1 -> viewLessons();
-                    case 2 -> recordAttendance();
-                    case 0 -> { return; }
-                    default -> System.out.println("無効な入力です。");
+                        """);
+            while (true) {
+                System.out.print("番号を入力してください>>> ");
+                try {
+                    int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
+                    switch (choice) {
+                        case 1 -> viewLessons();
+                        case 2 -> recordAttendance();
+                        case 0 -> { return; }
+                        default -> {
+                            System.out.println("無効な入力です。");
+                            continue;
+                        }
+                    }
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.println("数字を入力してください。");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("数字を入力してください。");
             }
         }
     }

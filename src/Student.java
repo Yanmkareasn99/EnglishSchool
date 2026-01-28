@@ -3,19 +3,20 @@ import java.time.LocalDateTime;
 
 public class Student {
 
-    private int id, age, points, phone;
+    private int id, age, points;
+    private long phone;
     private String name, sex, email, course, status, address, lesson;
     private LocalDateTime pointExpireAt;
     private LocalDate registerDate;
 
     public Student(int id, String name, int age, String sex,
-                   int phone, String email, String course,
+                   long phone, String email, String course,
                    int points, String status, String lesson, String address) {
         this(id, name, age, sex, phone, email, course, points, status, lesson, address, null, null);
     }
 
     public Student(int id, String name, int age, String sex,
-                   int phone, String email, String course,
+                   long phone, String email, String course,
                    int points, String status, String lesson, String address,
                    LocalDateTime pointExpireAt, LocalDate registerDate) {
         this.id = id;
@@ -39,7 +40,7 @@ public class Student {
         normalizePoints(LocalDateTime.now());
         return points;
     }
-    public int getPhone() { return phone; }
+    public long getPhone() { return phone; }
     public String getName() { return name; }
     public String getSex() { return sex; }
     public String getEmail() { return email; }
