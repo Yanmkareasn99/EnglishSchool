@@ -111,4 +111,18 @@ public class Student {
             pointExpireAt = null;
         }
     }
+
+    public static Teacher findTeacher(int teacherId) {
+        for (Teacher t : EnglishSchool.teachers) {
+            if (t.getId() == teacherId) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static String getTeacherName(int teacherId) {
+        Teacher teacher = findTeacher(teacherId);
+        return teacher != null ? teacher.getName() : "";
+    }
 }

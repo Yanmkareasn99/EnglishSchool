@@ -1,2 +1,3 @@
 lessonId,studentId,teacherId,course,dateTime,status
 1,1,1,マンツーマン,2026-02-01 13,予約
+2,1,3,グループレッスン,2026-02-10 20,予約

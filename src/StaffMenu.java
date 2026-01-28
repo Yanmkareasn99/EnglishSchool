@@ -1,10 +1,8 @@
 //Staff have all the authorities except recordAttandance();
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 
 public class StaffMenu {
-    static final boolean shwStd = true;
 
     public static void showMenu() {
         while (true) {
@@ -186,9 +184,7 @@ public class StaffMenu {
 
     public static void reserveLesson() {
         System.out.println(Design.LINE);
-        if(shwStd){
-            viewStudents();
-        }
+        viewStudents();
         int lessonId = EnglishSchool.lessons.size()+1;
         System.out.print("生徒ID: ");
         int studentId = Integer.parseInt(EnglishSchool.sc.nextLine());
@@ -208,13 +204,27 @@ public class StaffMenu {
         LocalDateTime dateTime;
         try {
             dateTime = DateTimeUtil.parse(input);
-        } catch (DateTimeParseException e) {
+        } catch (Exception e) {
             System.out.println("日時の形式が正しくありません。");
             return;
         }
         if (dateTime.isBefore(LocalDateTime.now())) {
             System.out.println("過去の日時は予約できません。");
             return;
+        }
+
+        String formattedDateTime = DateTimeUtil.format(dateTime);
+        for(Lesson l : EnglishSchool.lessons){
+            if(!"取消".equals(l.getStatus()) && formattedDateTime.equals(l.getDateTime())){
+                if(l.getTeacherId() == teacherId){
+                    System.out.println("講師はその時間に予約があります。");
+                    return;
+                }
+                if(l.getStudentId() == studentId){
+                    System.out.println("生徒はその時間に予約があります。");
+                    return;
+                }
+            }
         }
 
         if (!student.consumePoints(LessonCost.getLessonCost())) {
@@ -237,7 +247,7 @@ public class StaffMenu {
                                 " 生徒ID=" + l.getStudentId() +
                                 " 講師ID=" + l.getTeacherId() +
                                 " レッスンタイプ=" + l.getLessonType() +
-                                " 日時=" + l.getDateTime()
+                                " 日時=" + l.getDateTime() + "時"
                 );
             }
         }
