@@ -8,7 +8,7 @@ public class StudentMenu {
         try {
             studentId = Integer.parseInt(EnglishSchool.sc.nextLine());
         } catch (Exception e) {
-            System.out.println("生徒IDが見つかりません");
+            System.out.println("数字を入力してください！！！");
             return;
         }
         Student currentStudent = StaffMenu.findStudent(studentId);
@@ -73,7 +73,6 @@ public class StudentMenu {
         System.out.println(Design.LINE);
 
         int lessonId = EnglishSchool.lessons.size()+1;
-        StaffMenu.viewStudents();
         Student student = StaffMenu.findStudent(studentId);
         System.out.print("講師ID: ");
         int teacherId = Integer.parseInt(EnglishSchool.sc.nextLine());
@@ -108,7 +107,7 @@ public class StudentMenu {
             }
         }
 
-        if (!student.consumePoints(LessonCost.getLessonCost())) {
+        if (student == null || !student.consumePoints(LessonCost.getLessonCost())) {
             System.out.println("ポイントが不足しています。");
             return;
         }

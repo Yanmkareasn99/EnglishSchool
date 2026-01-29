@@ -1,5 +1,5 @@
 public class Design {
-    public static final String LINE = "----------------------------------------";
+    public static String LINE = "----------------------------------------";
 
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");

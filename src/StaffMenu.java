@@ -55,6 +55,8 @@ public class StaffMenu {
         }
     }
 
+    //student
+
     public static void addStudent() {
         System.out.println(Design.LINE);
         int id = EnglishSchool.students.size()+1;
@@ -156,31 +158,9 @@ public class StaffMenu {
         return null;
     }
 
-    public static void addPoints() {
-        System.out.println(Design.LINE);
-        viewStudents();
-        System.out.print("生徒ID: ");
-        int id = Integer.parseInt(EnglishSchool.sc.nextLine());
 
-        for (Student s : EnglishSchool.students) {
-            if (s.getId() == id) {
-                if (!"在籍".equals(s.getStatus())) {
-                    System.out.println("在籍中の生徒が見つかりません。");
-                    return;
-                }
-                System.out.print("追加ポイント（200単位）: ");
-                int p = Integer.parseInt(EnglishSchool.sc.nextLine());
 
-                if (s.addPoints(p)) {
-                    System.out.println("ポイント追加完了");
-                } else {
-                    System.out.println("200単位で入力してください");
-                }
-                return;
-            }
-        }
-        System.out.println("生徒が見つかりません。");
-    }
+    //lesson
 
     public static void reserveLesson() {
         System.out.println(Design.LINE);
@@ -194,9 +174,14 @@ public class StaffMenu {
             return;
         }
         viewTeachers();
+
         System.out.print("講師ID: ");
         int teacherId = Integer.parseInt(EnglishSchool.sc.nextLine());
-
+        Teacher currentTeacher = Student.findTeacher(teacherId);
+        if (currentTeacher == null) {
+            System.out.println("先生が見つかりません");
+            return;
+        }
         String lessonType = CourseUtil.SelectLessonType();
 
         System.out.print("日時 (例: 2026-02-01 18): ");
@@ -229,7 +214,28 @@ public class StaffMenu {
 
         if (!student.consumePoints(LessonCost.getLessonCost())) {
             System.out.println("ポイントが不足しています。");
-            return;
+            while(true){
+                try{
+                    System.out.println("""
+        ポイントを購入しますか？
+       1. はい
+       2. いいえ
+           
+    番号を入力してください>>> """);
+                    switch (Integer.parseInt(EnglishSchool.sc.nextLine())){
+                        case 1 -> {
+                            addPoints();
+                            return;
+                        }
+                        case 2 -> {
+                            return;
+                        }
+                        default -> System.out.println("無効な入力！！！");
+                    }
+                } catch (Exception e) {
+                    System.out.println("数字を入力してください！！！");
+                }
+            }
         }
 
         Lesson l = new Lesson(lessonId, studentId, teacherId, lessonType, DateTimeUtil.format(dateTime));
@@ -272,6 +278,8 @@ public class StaffMenu {
         System.out.println("レッスンが見つかりません。");
     }
 
+    //teacher
+
     public static void addTeacher() {
         System.out.println(Design.LINE);
         int id = EnglishSchool.teachers.size() + 1;
@@ -293,6 +301,34 @@ public class StaffMenu {
                             " 名前=" + t.getName()
             );
         }
+    }
+
+    //money
+
+    public static void addPoints() {
+        System.out.println(Design.LINE);
+        viewStudents();
+        System.out.print("生徒ID: ");
+        int id = Integer.parseInt(EnglishSchool.sc.nextLine());
+
+        for (Student s : EnglishSchool.students) {
+            if (s.getId() == id) {
+                if (!"在籍".equals(s.getStatus())) {
+                    System.out.println("在籍中の生徒が見つかりません。");
+                    return;
+                }
+                System.out.print("追加ポイント（200単位）: ");
+                int p = Integer.parseInt(EnglishSchool.sc.nextLine());
+
+                if (s.addPoints(p)) {
+                    System.out.println("ポイント追加完了");
+                } else {
+                    System.out.println("200単位で入力してください");
+                }
+                return;
+            }
+        }
+        System.out.println("生徒が見つかりません。");
     }
 
     public static void viewLessonCost() {
@@ -331,10 +367,13 @@ public class StaffMenu {
 
         System.out.println(Design.LINE);
         int lessonCount = 0;
+//        for (Lesson l : EnglishSchool.lessons) {
+//            if (!"取消".equals(l.getStatus())) {
+//                lessonCount++;
+//            }
+//        }
         for (Lesson l : EnglishSchool.lessons) {
-            if (!"取消".equals(l.getStatus())) {
                 lessonCount++;
-            }
         }
         int totalPointsUsed = lessonCount * LessonCost.getLessonCost();
         int totalProfit = totalPointsUsed * LessonCost.getPointValue();

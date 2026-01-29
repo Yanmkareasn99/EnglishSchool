@@ -1,44 +1,60 @@
 public class TeacherMenu {
     public static void showMenu() {
+        int teacherId;
+        Design.clearScreen();
+        System.out.println(Design.LINE);
         while (true) {
-            Design.clearScreen();
-            System.out.println(Design.LINE);
-            System.out.print("""
+            System.out.print("講師ID: ");
+            try {
+                teacherId = Integer.parseInt(EnglishSchool.sc.nextLine());
+            } catch (Exception e) {
+                System.out.println("数字を入力してください！！！");
+                continue;
+            }
+            Teacher currentTeacher = Student.findTeacher(teacherId);
+            if (currentTeacher == null) {
+                System.out.println("先生が見つかりません");
+                continue;
+            }
+            while (true) {
+                Design.clearScreen();
+                System.out.println(Design.LINE);
+                System.out.print("""
                         
                         1: レッスン一覧
                         2: 出席登録
                         0: 戻る
                         
                         """);
-            while (true) {
-                System.out.print("番号を入力してください>>> ");
-                try {
-                    int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
-                    switch (choice) {
-                        case 1 -> viewLessons();
-                        case 2 -> recordAttendance();
-                        case 0 -> { return; }
-                        default -> {
-                            System.out.println("無効な入力です。");
-                            continue;
+                while (true) {
+                    System.out.print("番号を入力してください>>> ");
+                    try {
+                        int choice = Integer.parseInt(EnglishSchool.sc.nextLine());
+                        switch (choice) {
+                            case 1 -> viewLessons(teacherId);
+                            case 2 -> recordAttendance();
+                            case 0 -> { return; }
+                            default -> {
+                                System.out.println("無効な入力です。");
+                                continue;
+                            }
                         }
+                        break;
+                    } catch (NumberFormatException e) {
+                        System.out.println("数字を入力してください。");
                     }
-                    break;
-                } catch (NumberFormatException e) {
-                    System.out.println("数字を入力してください。");
                 }
             }
         }
     }
 
-    public static void viewLessons() {
+
+    public static void viewLessons(int teacherId) {
         System.out.println(Design.LINE);
-        System.out.print("講師ID: ");
-        int teacherId = Integer.parseInt(EnglishSchool.sc.nextLine());
 
         boolean found = false;
         for (Lesson l : EnglishSchool.lessons) {
-            if (l.getTeacherId() == teacherId && !"取消".equals(l.getStatus())) {
+            if (!"取消".equals(l.getStatus())) {
                 System.out.println(
                         "レッスンID=" + l.getLessonId() +
                                 " 生徒ID=" + l.getStudentId() +
@@ -60,7 +76,7 @@ public class TeacherMenu {
 
         for (Lesson l : EnglishSchool.lessons) {
             if (l.getLessonId() == lessonId) {
-                Student student = findStudent(l.getStudentId());
+                Student student = StaffMenu.findStudent(l.getStudentId());
                 if (student != null) {
                     String summary = l.getDateTime() + " " + l.getLessonType();
                     student.setLesson(summary);
@@ -74,7 +90,4 @@ public class TeacherMenu {
         System.out.println("レッスンが見つかりません。");
     }
 
-    public static Student findStudent(int studentId) {
-        return StaffMenu.findStudent(studentId);
-    }
 }
