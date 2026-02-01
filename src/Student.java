@@ -70,11 +70,7 @@ public class Student {
     public boolean consumePoints(int cost) {
         LocalDateTime now = LocalDateTime.now();
         normalizePoints(now);
-        if (points < cost) {
-            return false;
-        }
-        points -= cost;
-        return true;
+        return points >= cost;
     }
 
     public String toCsv() {

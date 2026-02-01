@@ -20,7 +20,7 @@ public class StudentMenu {
         while (true) {
             Design.clearScreen();
             System.out.println(Design.LINE);
-            System.out.println("生徒: " + currentStudent.getName() + " (ID: " + studentId + ")");
+            System.out.println("生徒: " + currentStudent.getName() + " (ID: " + studentId + ") ポイント残高：" + currentStudent.getPoints() + "ポイント");
             System.out.print("""
 
                         1: 生徒情報確認
@@ -74,6 +74,7 @@ public class StudentMenu {
 
         int lessonId = EnglishSchool.lessons.size()+1;
         Student student = StaffMenu.findStudent(studentId);
+        StaffMenu.viewTeachers();
         System.out.print("講師ID: ");
         int teacherId = Integer.parseInt(EnglishSchool.sc.nextLine());
 
