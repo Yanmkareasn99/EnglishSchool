@@ -1,5 +1,4 @@
 //Staff have all the authorities except recordAttandance();
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class StaffMenu {
@@ -59,8 +58,6 @@ public class StaffMenu {
 
     public static void addStudent() {
         System.out.println(Design.LINE);
-        int id = EnglishSchool.students.size()+1;
-
         System.out.print("名前: ");
         String name = EnglishSchool.sc.nextLine();
 
@@ -78,24 +75,14 @@ public class StaffMenu {
 
         String course = CourseUtil.selectCourse();
 
-        Student s = new Student(
-                id, name, age, sex,
-                phone, email, course,
-                0, "在籍", "", ""
-        );
-        s.setRegisterDate(LocalDate.now());
-
-        EnglishSchool.students.add(s);
+        StudentService.addStudent(name, age, sex, phone, email, course);
         System.out.println("生徒を登録しました。");
     }
 
     public static void viewStudents() {
         System.out.println(Design.LINE);
         System.out.println("\n------ 生徒一覧 ------");
-        for (Student s : EnglishSchool.students) {
-            if (!"在籍".equals(s.getStatus())) {
-                continue;
-            }
+        for (Student s : StudentService.getActiveStudents()) {
             System.out.println(
                     "ID=" + s.getId() +
                             " 名前=" + s.getName() +
@@ -110,23 +97,15 @@ public class StaffMenu {
         System.out.println(Design.LINE);
         System.out.print("変更する生徒ID: ");
         int id = Integer.parseInt(EnglishSchool.sc.nextLine());
-
-        for (Student s : EnglishSchool.students) {
-            if (s.getId() == id) {
-                if (!"在籍".equals(s.getStatus())) {
-                    System.out.println("在籍中の生徒が見つかりません。");
-                    return;
-                }
-                System.out.print("新しいコース名: ");
-                String course = EnglishSchool.sc.nextLine();
-                System.out.println("****コース変更****");
-                System.out.println("変更前: " + s.getCourse());
-                s.setCourse(course);
-                System.out.println("変更後: " + course);
-                return;
-            }
+        ActionResult validation = StudentService.validateActiveStudent(id);
+        if (!validation.isSuccess()) {
+            System.out.println(validation.getMessage());
+            return;
         }
-        System.out.println("生徒が見つかりません。");
+        System.out.print("新しいコース名: ");
+        String course = EnglishSchool.sc.nextLine();
+        ActionResult result = StudentService.changeStudentCourse(id, course);
+        System.out.println(result.getMessage());
     }
 
     public static void removeStudent() {
@@ -134,51 +113,27 @@ public class StaffMenu {
         System.out.print("退会する生徒ID: ");
         int id = Integer.parseInt(EnglishSchool.sc.nextLine());
 
-        for (Student s : EnglishSchool.students) {
-            if (s.getId() == id) {
-                if (!"在籍".equals(s.getStatus())) {
-                    System.out.println("すでに退学済みです。");
-                    return;
-                }
-                s.setStatus("退学");
-                System.out.println("退学処理が完了しました。");
-
-                return;
-            }
-        }
-        System.out.println("生徒が見つかりません。");
+        ActionResult result = StudentService.removeStudent(id);
+        System.out.println(result.getMessage());
     }
-
-    public static Student findStudent(int studentId) {
-        for (Student s : EnglishSchool.students) {
-            if (s.getId() == studentId) {
-                return s;
-            }
-        }
-        return null;
-    }
-
-
 
     //lesson
 
     public static void reserveLesson() {
         System.out.println(Design.LINE);
         viewStudents();
-        int lessonId = EnglishSchool.lessons.size()+1;
         System.out.print("生徒ID: ");
         int studentId = Integer.parseInt(EnglishSchool.sc.nextLine());
-        Student student = findStudent(studentId);
-        if (student == null || !"在籍".equals(student.getStatus())) {
-            System.out.println("在籍中の生徒が見つかりません。");
+        ActionResult studentValidation = StudentService.validateActiveStudent(studentId);
+        if (!studentValidation.isSuccess()) {
+            System.out.println(studentValidation.getMessage());
             return;
         }
         viewTeachers();
 
         System.out.print("講師ID: ");
         int teacherId = Integer.parseInt(EnglishSchool.sc.nextLine());
-        Teacher currentTeacher = Student.findTeacher(teacherId);
-        if (currentTeacher == null) {
+        if (TeacherService.findTeacher(teacherId) == null) {
             System.out.println("先生が見つかりません");
             return;
         }
@@ -193,36 +148,20 @@ public class StaffMenu {
             System.out.println("日時の形式が正しくありません。");
             return;
         }
-        if (dateTime.isBefore(LocalDateTime.now())) {
-            System.out.println("過去の日時は予約できません。");
-            return;
-        }
-
-        String formattedDateTime = DateTimeUtil.format(dateTime);
-        for(Lesson l : EnglishSchool.lessons){
-            if(!"取消".equals(l.getStatus()) && formattedDateTime.equals(l.getDateTime())){
-                if(l.getTeacherId() == teacherId){
-                    System.out.println("講師はその時間に予約があります。");
-                    return;
-                }
-                if(l.getStudentId() == studentId){
-                    System.out.println("生徒はその時間に予約があります。");
-                    return;
-                }
-            }
-        }
-
-        if (!student.consumePoints(LessonCost.getLessonCost())) {
-            System.out.println("ポイントが不足しています。");
-            while(true){
-                try{
+        ReserveLessonResult result = LessonService.reserveLesson(
+                studentId, teacherId, lessonType, dateTime, true
+        );
+        System.out.println(result.getMessage());
+        if (result.isInsufficientPoints()) {
+            while (true) {
+                try {
                     System.out.println("""
         ポイントを購入しますか？
        1. はい
        2. いいえ
            
     番号を入力してください>>> """);
-                    switch (Integer.parseInt(EnglishSchool.sc.nextLine())){
+                    switch (Integer.parseInt(EnglishSchool.sc.nextLine())) {
                         case 1 -> {
                             addPoints();
                             return;
@@ -237,25 +176,18 @@ public class StaffMenu {
                 }
             }
         }
-
-        Lesson l = new Lesson(lessonId, studentId, teacherId, lessonType, DateTimeUtil.format(dateTime));
-        EnglishSchool.lessons.add(l);
-
-        System.out.println("レッスンを予約しました。");
     }
 
     public static void viewLessons() {
         System.out.println(Design.LINE);
-        for (Lesson l : EnglishSchool.lessons) {
-            if (!"取消".equals(l.getStatus())) {
-                System.out.println(
-                        "レッスンID=" + l.getLessonId() +
-                                " 生徒ID=" + l.getStudentId() +
-                                " 講師ID=" + l.getTeacherId() +
-                                " レッスンタイプ=" + l.getLessonType() +
-                                " 日時=" + l.getDateTime() + "時"
-                );
-            }
+        for (Lesson l : LessonService.getActiveLessons()) {
+            System.out.println(
+                    "レッスンID=" + l.getLessonId() +
+                            " 生徒ID=" + l.getStudentId() +
+                            " 講師ID=" + l.getTeacherId() +
+                            " レッスンタイプ=" + l.getLessonType() +
+                            " 日時=" + l.getDateTime() + "時"
+            );
         }
     }
 
@@ -264,38 +196,25 @@ public class StaffMenu {
         System.out.print("取消するレッスンID: ");
         int lessonId = Integer.parseInt(EnglishSchool.sc.nextLine());
 
-        for (Lesson l : EnglishSchool.lessons) {
-            if (l.getLessonId() == lessonId) {
-                if ("取消".equals(l.getStatus())) {
-                    System.out.println("すでに取消済みです。");
-                    return;
-                }
-                l.setStatus("取消");
-                System.out.println("レッスンを取消しました。");
-                return;
-            }
-        }
-        System.out.println("レッスンが見つかりません。");
+        ActionResult result = LessonService.cancelLesson(lessonId);
+        System.out.println(result.getMessage());
     }
 
     //teacher
 
     public static void addTeacher() {
         System.out.println(Design.LINE);
-        int id = EnglishSchool.teachers.size() + 1;
-
         System.out.print("講師名: ");
         String name = EnglishSchool.sc.nextLine();
 
-        Teacher t = new Teacher(id, name);
-        EnglishSchool.teachers.add(t);
+        TeacherService.addTeacher(name);
         System.out.println("講師を登録しました。");
     }
 
     public static void viewTeachers() {
         System.out.println(Design.LINE);
         System.out.println("\n------ 講師一覧 ------");
-        for (Teacher t : EnglishSchool.teachers) {
+        for (Teacher t : TeacherService.getTeachers()) {
             System.out.println(
                     "ID=" + t.getId() +
                             " 名前=" + t.getName()
@@ -310,25 +229,15 @@ public class StaffMenu {
         viewStudents();
         System.out.print("生徒ID: ");
         int id = Integer.parseInt(EnglishSchool.sc.nextLine());
-
-        for (Student s : EnglishSchool.students) {
-            if (s.getId() == id) {
-                if (!"在籍".equals(s.getStatus())) {
-                    System.out.println("在籍中の生徒が見つかりません。");
-                    return;
-                }
-                System.out.print("追加ポイント（200単位）: ");
-                int p = Integer.parseInt(EnglishSchool.sc.nextLine());
-
-                if (s.addPoints(p)) {
-                    System.out.println("ポイント追加完了");
-                } else {
-                    System.out.println("200単位で入力してください");
-                }
-                return;
-            }
+        ActionResult validation = StudentService.validateActiveStudent(id);
+        if (!validation.isSuccess()) {
+            System.out.println(validation.getMessage());
+            return;
         }
-        System.out.println("生徒が見つかりません。");
+        System.out.print("追加ポイント（200単位）: ");
+        int p = Integer.parseInt(EnglishSchool.sc.nextLine());
+        ActionResult result = StudentService.addPoints(id, p);
+        System.out.println(result.getMessage());
     }
 
     public static void viewLessonCost() {
@@ -366,19 +275,9 @@ public class StaffMenu {
     public static void viewProfit() {
 
         System.out.println(Design.LINE);
-        int lessonCount = 0;
-//        for (Lesson l : EnglishSchool.lessons) {
-//            if (!"取消".equals(l.getStatus())) {
-//                lessonCount++;
-//            }
-//        }
-        for (Lesson l : EnglishSchool.lessons) {
-                lessonCount++;
-        }
-        int totalPointsUsed = lessonCount * LessonCost.getLessonCost();
-        int totalProfit = totalPointsUsed * LessonCost.getPointValue();
+        ProfitSummary summary = FinanceService.calculateProfit();
         System.out.println(Design.LINE);
-        System.out.println("ポイント合計=" + totalPointsUsed);
-        System.out.println("売上=" + totalProfit + "円");
+        System.out.println("ポイント合計=" + summary.getTotalPointsUsed());
+        System.out.println("売上=" + summary.getTotalProfit() + "円");
     }
 }

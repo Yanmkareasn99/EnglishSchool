@@ -11,7 +11,7 @@ public class TeacherMenu {
                 System.out.println("数字を入力してください！！！");
                 continue;
             }
-            Teacher currentTeacher = Student.findTeacher(teacherId);
+            Teacher currentTeacher = TeacherService.findTeacher(teacherId);
             if (currentTeacher == null) {
                 System.out.println("先生が見つかりません");
                 continue;
@@ -53,16 +53,14 @@ public class TeacherMenu {
         System.out.println(Design.LINE);
 
         boolean found = false;
-        for (Lesson l : EnglishSchool.lessons) {
-            if (!"取消".equals(l.getStatus())) {
-                System.out.println(
-                        "レッスンID=" + l.getLessonId() +
-                                " 生徒ID=" + l.getStudentId() +
-                                " レッスンタイプ=" + l.getLessonType() +
-                                " 日時=" + l.getDateTime()
-                );
-                found = true;
-            }
+        for (Lesson l : LessonService.getLessonsForTeacher(teacherId)) {
+            System.out.println(
+                    "レッスンID=" + l.getLessonId() +
+                            " 生徒ID=" + l.getStudentId() +
+                            " レッスンタイプ=" + l.getLessonType() +
+                            " 日時=" + l.getDateTime()
+            );
+            found = true;
         }
         if (!found) {
             System.out.println("該当レッスンがありません。");
@@ -74,20 +72,8 @@ public class TeacherMenu {
         System.out.print("レッスンID: ");
         int lessonId = Integer.parseInt(EnglishSchool.sc.nextLine());
 
-        for (Lesson l : EnglishSchool.lessons) {
-            if (l.getLessonId() == lessonId) {
-                Student student = StaffMenu.findStudent(l.getStudentId());
-                if (student != null) {
-                    String summary = l.getDateTime() + " " + l.getLessonType();
-                    student.setLesson(summary);
-                    System.out.println("出席を登録しました。");
-                } else {
-                    System.out.println("生徒が見つかりません。");
-                }
-                return;
-            }
-        }
-        System.out.println("レッスンが見つかりません。");
+        ActionResult result = LessonService.recordAttendance(lessonId);
+        System.out.println(result.getMessage());
     }
 
 }
